@@ -5,9 +5,14 @@ public class Player : MonoBehaviour
 {
     public GameObject player;
     private bool isGrounded;
-    [SerializeField] private float jumpForce = 6;
+    private float jumpForce = 6;
 
-    static string GAME_SCENE = "GameScene";
+    private Rigidbody playerRigidBody;
+
+    void Start()
+    {
+        playerRigidBody = GetComponent<Rigidbody>();
+    }
 
     void Update()
     {
@@ -16,25 +21,35 @@ public class Player : MonoBehaviour
             JumpOnKeyDown();
         }
 
-        if (player.transform.position.x < -15)
+        if (player.transform.position.y < 35)
         {
-            Debug.Log("Ici");
-            SceneManager.LoadScene(GAME_SCENE);
+            SceneManager.LoadScene("GameScene");
         }
     }
 
     void JumpOnKeyDown()
     {
-        Rigidbody playerRigidBody = GetComponent<Rigidbody>();
         playerRigidBody.linearVelocity = new Vector2(playerRigidBody.linearVelocity.x, jumpForce);
-        isGrounded = false;
     }
 
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.name == "Platform")
+        if (collision.gameObject.CompareTag("Platform") || collision.gameObject.CompareTag("Start"))
         {
             isGrounded = true;
+        }
+
+        if(collision.gameObject.CompareTag("Platform"))
+        {
+            FindAnyObjectByType<Score>().UpdateScore();
+        } 
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Platform"))
+        {
+            isGrounded = false;
         }
     }
 }
